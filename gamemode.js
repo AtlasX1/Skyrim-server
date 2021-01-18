@@ -151,10 +151,10 @@ exports.utils = {
       args[_i] = arguments[_i];
     }
 
-    (_a = console.log).call.apply(_a, __spreadArrays([console, '[GM]'], args));
+    (_a = console.log).call.apply(_a, __spreadArrays([console, "[GM]"], args));
   },
   isActor: function (formId) {
-    return mp.get(formId, 'type') === 'MpActor';
+    return mp.get(formId, "type") === "MpActor";
   },
   hook: function (eventName, callback) {
     if (!global.knownEvents.includes(eventName)) {
@@ -177,8 +177,8 @@ exports.utils = {
       } catch (e) {
         exports.utils.log("'" + eventName + "' threw an error: " + e);
 
-        if (e['stack']) {
-          exports.utils.log(e['stack']);
+        if (e["stack"]) {
+          exports.utils.log(e["stack"]);
         }
 
         return undefined;
@@ -188,7 +188,7 @@ exports.utils = {
 };
 
 var getFunctionText = function (func) {
-  var result = string_minify_1.default(func.toString()).replace(new RegExp('^.+?{', 'm'), '').replace(new RegExp('[}]$', 'm'), '').trim();
+  var result = string_minify_1.default(func.toString()).replace(new RegExp("^.+?{", "m"), "").replace(new RegExp("[}]$", "m"), "").trim();
   return result;
 };
 
@@ -791,7 +791,113 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utils/utils":"utils/utils.ts","../property/consoleOutput":"property/consoleOutput.ts","../sync/ActorValues":"sync/ActorValues.ts","./spawnSystem":"mechanics/spawnSystem.ts"}],"mechanics/mines.ts":[function(require,module,exports) {
+},{"../utils/utils":"utils/utils.ts","../property/consoleOutput":"property/consoleOutput.ts","../sync/ActorValues":"sync/ActorValues.ts","./spawnSystem":"mechanics/spawnSystem.ts"}],"mechanics/data/locations/mines.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.mines = void 0;
+exports.mines = [{
+  baseId: "0002C778",
+  name: "DawnstarIronBreakerMine",
+  ruName: "Железорудная шахта"
+}, {
+  baseId: "0001B147",
+  name: "BilegulchMine",
+  ruName: "Желчная шахта"
+}, {
+  baseId: "000B6BE6",
+  name: "EmbershardMine01",
+  ruName: "Факельная шахта"
+}, {
+  baseId: "0001382E",
+  name: "ShorsStoneRedbellyMine",
+  ruName: "Красная шахта"
+}, {
+  baseId: "0001523C",
+  name: "MorKhazgurMine",
+  ruName: "Мор Казгур - Шахта"
+}, {
+  baseId: "0002C779",
+  name: "DawnstarQuicksilverMine",
+  ruName: "Ртутная шахта"
+}, {
+  baseId: "000161E7",
+  name: "WhistlingMine01",
+  ruName: "Свистящая шахта"
+}, {
+  baseId: "00016200",
+  name: "GloomboundMine01",
+  ruName: "Сумрачная шахта"
+}, {
+  baseId: "00013901",
+  name: "KynesgroveSteamscorchGullyMine",
+  ruName: "Шахта Горячий Пар"
+}, {
+  baseId: "0001528A",
+  name: "DushnikhYalMine",
+  ruName: "Шахта Душник"
+}, {
+  baseId: "00013A8A",
+  name: "DarkwaterCrossingGoldenrockMine",
+  ruName: "Шахта Золотая Скала"
+}, {
+  baseId: "0002E760",
+  name: "StonehillsMine",
+  ruName: "Шахта Качающийся Камень"
+}, {
+  baseId: "000161F6",
+  name: "KolskeggrMine01",
+  ruName: "Шахта Колскеггр"
+}, {
+  baseId: "000161F5",
+  name: "LeftHandMine",
+  ruName: "Шахта Левая Рука"
+}, {
+  baseId: "00079F9F",
+  name: "KnifepointRidge01",
+  ruName: "Шахта Острие Ножа"
+}, {
+  baseId: "0005554A",
+  name: "LostProspectMine01",
+  ruName: "Шахта Потерянный Шанс"
+}, {
+  baseId: "00013909",
+  name: "KarthwastenSanuarachMine",
+  ruName: "Шахта Сануарах"
+}, {
+  baseId: "00015294",
+  name: "NorthwindMine01",
+  ruName: "Шахта Северный Ветер"
+}, {
+  baseId: "00016203",
+  name: "CidhnaMine01",
+  ruName: "Шахта Сидна"
+}, {
+  baseId: "00013978",
+  name: "KarthwastenFennsGulchMine",
+  ruName: "Шахта Ущелье Фенна"
+}, {
+  baseId: "00043FAB",
+  name: "HaltedStreamCamp01",
+  ruName: "Лагерь Чистых родников"
+}];
+},{}],"mechanics/data/professions/index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PROFFESSIONS = void 0;
+exports.PROFFESSIONS = {
+  miner: {
+    tool: parseInt("000E3C16", 16),
+    clothes: parseInt("00080697", 16),
+    boots: parseInt("0001BE1B", 16)
+  }
+};
+},{}],"mechanics/mines.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -801,16 +907,20 @@ exports.init = void 0;
 
 var utils_1 = require("../utils/utils");
 
-var simplePickaxe = 0xe3c16;
-var items = [simplePickaxe, 0xaccd1, 0xb974f, 0x7a14e, 0x7a132, 0x10df21, 0x100e3b, 0xb505c, 0xb50c1];
+var mines_1 = require("./data/locations/mines");
 
-var isMine = function (formId) {
-  return formId === 91570 ? true : false;
+var professions_1 = require("./data/professions");
+
+var isMine = function (name) {
+  var findedMine = mines_1.mines.find(function (el) {
+    return el.ruName === name;
+  });
+  return findedMine ? true : false;
 };
 
 var addItem = function (formId, baseId, count) {
   if (count <= 0) return;
-  var inv = mp.get(formId, 'inventory');
+  var inv = mp.get(formId, "inventory");
   var added = false;
 
   for (var _i = 0, inv_1 = inv; _i < inv_1.length; _i++) {
@@ -830,23 +940,188 @@ var addItem = function (formId, baseId, count) {
     });
   }
 
-  mp.set(formId, 'inventory', inv);
+  mp.set(formId, "inventory", inv);
 };
 
+var deleteItem = function (formId, baseId, count) {
+  if (count <= 0) {
+    utils_1.utils.log("Error: deleteItem() - Count <= 0 !");
+    return false;
+  }
+
+  var inv = mp.get(formId, "inventory");
+  var newInv = {
+    entries: []
+  };
+  var deletedItemIndex = inv.entries.findIndex(function (item) {
+    return item.baseId === baseId;
+  });
+  var newCount = inv.entries[deletedItemIndex].count - count;
+
+  if (deletedItemIndex === -1) {
+    utils_1.utils.log("Error: deleteItem() - Item not found!");
+    return false;
+  }
+
+  if (newCount < 0) {
+    utils_1.utils.log("Error: deleteItem() - new item count below zero.");
+    return false;
+  }
+
+  if (newCount === 0) {
+    newInv.entries = inv.entries.filter(function (item) {
+      return item.baseId !== baseId;
+    });
+    mp.set(formId, "inventory", newInv);
+    return true;
+  }
+
+  if (newCount > 0) {
+    newInv.entries = inv.entries;
+    newInv.entries[deletedItemIndex].count = newCount;
+    mp.set(formId, "inventory", newInv);
+    return true;
+  }
+
+  return false;
+};
+
+var isInInventory = function (pcFormId, itemId) {
+  if (!itemId) return false;
+  var inv = mp.get(pcFormId, "inventory");
+  return inv.entries.find(function (el) {
+    return el.baseId === itemId;
+  }) ? true : false;
+};
+
+var isEquip = function (pcFormId, itemId) {
+  var _a;
+
+  var inv = mp.get(pcFormId, "equipment");
+  var item = inv.entries.find(function (item) {
+    return item.baseId === itemId;
+  });
+  return (_a = item === null || item === void 0 ? void 0 : item.worn) !== null && _a !== void 0 ? _a : false;
+};
+
+var deleteProfessionItems = function (pcFormId, name) {
+  utils_1.utils.log("deleteProfessionItems");
+  var currentProf = professions_1.PROFFESSIONS[name];
+
+  if (!currentProf) {
+    utils_1.utils.log("Error: deleteProfessionItems() - Cannot find profession:", name);
+    return false;
+  }
+
+  var actorHave = {
+    tool: isInInventory(pcFormId, currentProf.tool),
+    clothes: isInInventory(pcFormId, currentProf.clothes),
+    boots: isInInventory(pcFormId, currentProf.boots),
+    helmet: isInInventory(pcFormId, currentProf.helmet),
+    gloves: isInInventory(pcFormId, currentProf.gloves)
+  };
+  var canEndProfession = {
+    tool: actorHave.tool && currentProf.tool || !currentProf.tool,
+    clothes: actorHave.clothes && currentProf.clothes || !currentProf.clothes,
+    boots: actorHave.boots && currentProf.boots || !currentProf.boots,
+    helmet: actorHave.helmet && currentProf.helmet || !currentProf.helmet,
+    gloves: actorHave.gloves && currentProf.gloves || !currentProf.gloves
+  };
+
+  if (canEndProfession.tool && canEndProfession.clothes && canEndProfession.gloves && canEndProfession.helmet && canEndProfession.boots) {
+    if (currentProf.tool) {
+      var isDeleted = deleteItem(pcFormId, currentProf.tool, 1);
+
+      if (!isDeleted) {
+        utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+      }
+    }
+
+    if (currentProf.clothes) {
+      var isDeleted = deleteItem(pcFormId, currentProf.clothes, 1);
+
+      if (!isDeleted) {
+        utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+      }
+    }
+
+    if (currentProf.boots) {
+      var isDeleted = deleteItem(pcFormId, currentProf.boots, 1);
+
+      if (!isDeleted) {
+        utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+      }
+    }
+
+    if (currentProf.helmet) {
+      var isDeleted = deleteItem(pcFormId, currentProf.helmet, 1);
+
+      if (!isDeleted) {
+        utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+      }
+    }
+
+    if (currentProf.gloves) {
+      var isDeleted = deleteItem(pcFormId, currentProf.gloves, 1);
+
+      if (!isDeleted) {
+        utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+      }
+    }
+
+    return true;
+  } else {
+    utils_1.utils.log("Error: deleteProfessionItems() - Actor can not end profession! Must be all profession item`s.");
+    return false;
+  }
+};
+
+var addProfessionItems = function (pcFormId, name) {
+  utils_1.utils.log("addProfessionItems");
+  var currentProf = professions_1.PROFFESSIONS[name];
+
+  if (!currentProf) {
+    utils_1.utils.log("Error: addProfessionItems() -  Cannot find profession:", name);
+    return;
+  }
+
+  if (currentProf.tool) addItem(pcFormId, currentProf.tool, 1);
+  if (currentProf.clothes) addItem(pcFormId, currentProf.clothes, 1);
+  if (currentProf.boots) addItem(pcFormId, currentProf.boots, 1);
+  if (currentProf.helmet) addItem(pcFormId, currentProf.helmet, 1);
+  if (currentProf.gloves) addItem(pcFormId, currentProf.gloves, 1);
+};
+
+var currentProfessionName = "miner";
+
 var init = function () {
-  utils_1.utils.hook('_onCurrentCellChange', function (pcFormId, event) {
+  utils_1.utils.hook("_onActivate", function (pcFormId, event) {
     try {
-      if (isMine(event.cell.id)) {
-        var invEntry_1 = mp.get(pcFormId, 'inventory').entries;
-        items.forEach(function (item) {
-          if (invEntry_1.map(function (x) {
-            return x.baseId;
-          }).findIndex(function (x) {
-            return x === item;
-          }) === -1) {
-            addItem(pcFormId, item, 1);
+      utils_1.utils.log("_onCurrentCellChange :::::::::::::>", event);
+
+      if (event.target === 293316) {
+        var activeProfession = mp.get(pcFormId, "activeProfession");
+        var professionMiner = professions_1.PROFFESSIONS[currentProfessionName];
+
+        if (professionMiner) {
+          if (!activeProfession) {
+            mp.set(pcFormId, "activeProfession", {
+              name: currentProfessionName,
+              equipment: professionMiner
+            });
+            addProfessionItems(pcFormId, "miner");
+          } else {
+            if (activeProfession.name === currentProfessionName) {
+              var isDeleted = deleteProfessionItems(pcFormId, "miner");
+
+              if (!isDeleted) {
+                utils_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+              } else {
+                mp.set(pcFormId, "activeProfession", null);
+              }
+            }
           }
-        });
+        }
       }
     } catch (err) {
       utils_1.utils.log(err);
@@ -855,7 +1130,7 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utils/utils":"utils/utils.ts"}],"mechanics/index.ts":[function(require,module,exports) {
+},{"../utils/utils":"utils/utils.ts","./data/locations/mines":"mechanics/data/locations/mines.ts","./data/professions":"mechanics/data/professions/index.ts"}],"mechanics/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1028,13 +1303,58 @@ var init = function () {
 };
 
 exports.init = init;
+},{"../utils":"utils/index.ts"}],"property/activeProfession.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = void 0;
+
+var utils_1 = require("../utils");
+
+function setActiveProfession() {
+  try {
+    if (ctx.value !== ctx.state.activeProfession) {
+      ctx.state.activeProfession = ctx.value;
+
+      if (ctx.value) {
+        var player_1 = ctx.sp.Game.getPlayer();
+        Object.keys(ctx.value.equipment).forEach(function (item) {
+          var currentItemId = ctx.value.equipment[item];
+          var currentItem = ctx.sp.Game.getFormEx(currentItemId);
+          ctx.sp.printConsole(currentItem);
+
+          if (!player_1.isEquipped(currentItemId)) {
+            player_1.equipItem(currentItem, false, false);
+          }
+        });
+      }
+
+      ctx.sp.printConsole(ctx.value);
+    }
+  } catch (e) {
+    ctx.sp.printConsole(e);
+  }
+}
+
+var init = function () {
+  mp.makeProperty("activeProfession", {
+    isVisibleByOwner: true,
+    isVisibleByNeighbors: true,
+    updateOwner: utils_1.getFunctionText(setActiveProfession),
+    updateNeighbor: ""
+  });
+};
+
+exports.init = init;
 },{"../utils":"utils/index.ts"}],"property/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.scalePropInit = exports.playerRacePropInit = exports.playerLevelPropInit = exports.spawnPointPropInit = exports.consoleOutputPropInit = exports.isDeadPropInit = void 0;
+exports.activeProfessionInit = exports.scalePropInit = exports.playerRacePropInit = exports.playerLevelPropInit = exports.spawnPointPropInit = exports.consoleOutputPropInit = exports.isDeadPropInit = void 0;
 
 var isDead_1 = require("./isDead");
 
@@ -1089,7 +1409,16 @@ Object.defineProperty(exports, "scalePropInit", {
     return scale_1.init;
   }
 });
-},{"./isDead":"property/isDead.ts","./consoleOutput":"property/consoleOutput.ts","./spawnPoint":"property/spawnPoint.ts","./playerLevel":"property/playerLevel.ts","./playerRace":"property/playerRace.ts","./scale":"property/scale.ts"}],"event/_.ts":[function(require,module,exports) {
+
+var activeProfession_1 = require("./activeProfession");
+
+Object.defineProperty(exports, "activeProfessionInit", {
+  enumerable: true,
+  get: function () {
+    return activeProfession_1.init;
+  }
+});
+},{"./isDead":"property/isDead.ts","./consoleOutput":"property/consoleOutput.ts","./spawnPoint":"property/spawnPoint.ts","./playerLevel":"property/playerLevel.ts","./playerRace":"property/playerRace.ts","./scale":"property/scale.ts","./activeProfession":"property/activeProfession.ts"}],"event/_.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1478,13 +1807,43 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utils":"utils/index.ts"}],"event/index.ts":[function(require,module,exports) {
+},{"../utils":"utils/index.ts"}],"event/_onActivate.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports._onCurrentCellChangeInit = exports._onLocalDeathInit = exports._onConsoleCommandInit = exports._onSprintStateChangeInit = exports._onRegenFinishInit = exports._onPowerAttackInit = exports._onHitInit = exports._onBashInit = exports._Init = void 0;
+exports.init = void 0;
+
+var utils_1 = require("../utils/utils");
+
+var init = function () {
+  mp.makeEventSource("_onActivate", utils_1.getFunctionText(function () {
+    ctx.sp.on("activate", function (e) {
+      try {
+        if (e.source && ctx.sp.Spell.from(e.source)) return;
+        var target = ctx.getFormIdInServerFormat(e.target.getFormId());
+        ctx.sendEvent({
+          target: target
+        });
+      } catch (e) {
+        ctx.sp.printConsole("Catch", e);
+      }
+    });
+  }));
+  utils_1.utils.hook("_onActivate", function (pcFormId, eventData) {
+    utils_1.utils.log(pcFormId, eventData);
+  });
+};
+
+exports.init = init;
+},{"../utils/utils":"utils/utils.ts"}],"event/index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._onActivateInit = exports._onCurrentCellChangeInit = exports._onLocalDeathInit = exports._onConsoleCommandInit = exports._onSprintStateChangeInit = exports._onRegenFinishInit = exports._onPowerAttackInit = exports._onHitInit = exports._onBashInit = exports._Init = void 0;
 
 var _1 = require("./_");
 
@@ -1566,7 +1925,16 @@ Object.defineProperty(exports, "_onCurrentCellChangeInit", {
     return _onCurrentCellChange_1.init;
   }
 });
-},{"./_":"event/_.ts","./_onBash":"event/_onBash.ts","./_onHit":"event/_onHit.ts","./_onPowerAttack":"event/_onPowerAttack.ts","./_onRegenFinish":"event/_onRegenFinish.ts","./_onSprintStateChange":"event/_onSprintStateChange.ts","./_onConsoleCommand":"event/_onConsoleCommand.ts","./_onLocalDeath":"event/_onLocalDeath.ts","./_onCurrentCellChange":"event/_onCurrentCellChange.ts"}],"index.ts":[function(require,module,exports) {
+
+var _onActivate_1 = require("./_onActivate");
+
+Object.defineProperty(exports, "_onActivateInit", {
+  enumerable: true,
+  get: function () {
+    return _onActivate_1.init;
+  }
+});
+},{"./_":"event/_.ts","./_onBash":"event/_onBash.ts","./_onHit":"event/_onHit.ts","./_onPowerAttack":"event/_onPowerAttack.ts","./_onRegenFinish":"event/_onRegenFinish.ts","./_onSprintStateChange":"event/_onSprintStateChange.ts","./_onConsoleCommand":"event/_onConsoleCommand.ts","./_onLocalDeath":"event/_onLocalDeath.ts","./_onCurrentCellChange":"event/_onCurrentCellChange.ts","./_onActivate":"event/_onActivate.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1585,7 +1953,7 @@ var sync_1 = require("./sync");
 
 var constants_1 = require("./constants/constants");
 
-utils_1.utils.log('Gamemode init');
+utils_1.utils.log("Gamemode init");
 
 if (!Array.isArray(global.knownEvents)) {
   global.knownEvents = [];
@@ -1596,7 +1964,7 @@ for (var _i = 0, _a = global.knownEvents; _i < _a.length; _i++) {
   delete mp[eventName];
 }
 
-utils_1.utils.hook('onInit', function (pcFormId) {
+utils_1.utils.hook("onInit", function (pcFormId) {
   mp.onReinit(pcFormId);
 });
 property_1.isDeadPropInit();
@@ -1605,6 +1973,7 @@ property_1.spawnPointPropInit();
 property_1.playerLevelPropInit();
 property_1.playerRacePropInit();
 property_1.scalePropInit();
+property_1.activeProfessionInit();
 
 event_1._Init();
 
@@ -1624,19 +1993,22 @@ event_1._onLocalDeathInit();
 
 event_1._onCurrentCellChangeInit();
 
+event_1._onActivateInit();
+
 sync_1.ActorValuesInit();
 mechanics_1.spawnSystemInit();
 mechanics_1.devCommandsInit();
 mechanics_1.minesInit();
-utils_1.utils.hook('onReinit', function (pcFormId, options) {
+utils_1.utils.hook("onReinit", function (pcFormId, options) {
   if (sync_1.actorValues.setDefaults) {
     sync_1.actorValues.setDefaults(pcFormId, options);
   }
 
-  if (!mp.get(pcFormId, 'spawnPoint') || options && options.force) {
-    mp.set(pcFormId, 'spawnPoint', constants_1.defaultSpawnPoint);
+  if (!mp.get(pcFormId, "spawnPoint") || options && options.force) {
+    mp.set(pcFormId, "spawnPoint", constants_1.defaultSpawnPoint);
   }
 
-  mp.set(pcFormId, 'scale', 1);
+  mp.set(pcFormId, "scale", 1);
+  mp.set(pcFormId, "activeProfession", null);
 });
 },{"./utils/utils":"utils/utils.ts","./mechanics":"mechanics/index.ts","./property":"property/index.ts","./event":"event/index.ts","./sync":"sync/index.ts","./constants/constants":"constants/constants.ts"}]},{},["index.ts"], null)

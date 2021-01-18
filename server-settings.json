@@ -1,7 +1,13 @@
 {
-	"dataDir": "data",
-	"loadOrder": ["Skyrim.esm", "Update.esm", "Dawnguard.esm", "HearthFires.esm", "Dragonborn.esm"],
-	"ip": "127.0.0.1",
-	"name": "__alek",
-	"maxPlayers": 1
+  "dataDir": "data",
+  "loadOrder": [
+    "Skyrim.esm",
+    "Update.esm",
+    "Dawnguard.esm",
+    "HearthFires.esm",
+    "Dragonborn.esm"
+  ],
+  "ip": "127.0.0.1",
+  "name": "Atlas",
+  "maxPlayers": 1
 }

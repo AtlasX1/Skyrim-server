@@ -1,46 +1,48 @@
-import { utils } from './utils/utils';
-import { devCommandsInit, minesInit, spawnSystemInit } from './mechanics';
+import { utils } from "./utils/utils";
+import { devCommandsInit, minesInit, spawnSystemInit } from "./mechanics";
 
 import {
-	consoleOutputPropInit,
-	isDeadPropInit,
-	spawnPointPropInit,
-	playerLevelPropInit,
-	playerRacePropInit,
-	scalePropInit,
-} from './property';
+  consoleOutputPropInit,
+  isDeadPropInit,
+  spawnPointPropInit,
+  playerLevelPropInit,
+  playerRacePropInit,
+  scalePropInit,
+  activeProfessionInit,
+} from "./property";
 
 import {
-	_Init,
-	_onBashInit,
-	_onHitInit,
-	_onPowerAttackInit,
-	_onRegenFinishInit,
-	_onSprintStateChangeInit,
-	_onConsoleCommandInit,
-	_onLocalDeathInit,
-	_onCurrentCellChangeInit,
-} from './event';
+  _Init,
+  _onBashInit,
+  _onHitInit,
+  _onPowerAttackInit,
+  _onRegenFinishInit,
+  _onSprintStateChangeInit,
+  _onConsoleCommandInit,
+  _onLocalDeathInit,
+  _onCurrentCellChangeInit,
+  _onActivateInit,
+} from "./event";
 
-import { actorValues, ActorValuesInit } from './sync';
+import { actorValues, ActorValuesInit } from "./sync";
 
-import { MP } from './platform/mp';
-import { CTX } from './platform';
+import { MP } from "./platform/mp";
+import { CTX } from "./platform";
 
-import { defaultSpawnPoint } from './constants/constants';
+import { defaultSpawnPoint } from "./constants/constants";
 
 declare const mp: MP;
 declare var global: any;
 
-utils.log('Gamemode init');
+utils.log("Gamemode init");
 if (!Array.isArray(global.knownEvents)) {
-	global.knownEvents = [];
+  global.knownEvents = [];
 }
 for (const eventName of global.knownEvents) {
-	delete mp[eventName];
+  delete mp[eventName];
 }
-utils.hook('onInit', (pcFormId: number) => {
-	mp.onReinit(pcFormId);
+utils.hook("onInit", (pcFormId: number) => {
+  mp.onReinit(pcFormId);
 });
 
 /** property initialization */
@@ -50,6 +52,7 @@ spawnPointPropInit();
 playerLevelPropInit();
 playerRacePropInit();
 scalePropInit();
+activeProfessionInit();
 /** */
 
 /** event initialization */
@@ -62,6 +65,7 @@ _onSprintStateChangeInit();
 _onConsoleCommandInit();
 _onLocalDeathInit();
 _onCurrentCellChangeInit();
+_onActivateInit();
 /** */
 
 /** sync initialization */
@@ -99,17 +103,20 @@ minesInit();
  * TODO: Перенести доработки Леонида в ts
  */
 
-utils.hook('onReinit', (pcFormId: number, options: any) => {
-	/** Проставляем значения по умолчанию персонажу */
-	if (actorValues.setDefaults) {
-		actorValues.setDefaults(pcFormId, options);
-	}
-	/** Проставляем точку для респавна */
-	if (!mp.get(pcFormId, 'spawnPoint') || (options && options.force)) {
-		mp.set(pcFormId, 'spawnPoint', defaultSpawnPoint);
-	}
-	/** Проставляем размер персонажа на стандартный */
-	mp.set(pcFormId, 'scale', 1);
+utils.hook("onReinit", (pcFormId: number, options: any) => {
+  /** Проставляем значения по умолчанию персонажу */
+  if (actorValues.setDefaults) {
+    actorValues.setDefaults(pcFormId, options);
+  }
+  /** Проставляем точку для респавна */
+  if (!mp.get(pcFormId, "spawnPoint") || (options && options.force)) {
+    mp.set(pcFormId, "spawnPoint", defaultSpawnPoint);
+  }
+  /** Проставляем размер персонажа на стандартный */
+  mp.set(pcFormId, "scale", 1);
+  /** Проставляем наличие профессии */
+
+  mp.set(pcFormId, "activeProfession", null);
 });
 
 /** TEST */
