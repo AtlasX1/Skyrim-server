@@ -1,11 +1,11 @@
 import { utils } from "../utility";
 import { MP } from "../platform";
-import { CellChangeEvent, ActivateEvent } from "../types/Events";
+import { ActivateEvent } from "../types/Events";
 import { mines } from "./data/locations/mines";
 import { PROFFESSIONS } from "./data/professions";
-import type { proffession, collectorNames } from "./data/professions";
 import { invenotry } from "../types/Inventory";
-// import { addItem } from "../helper";
+
+import type { collectorNames } from "./data/professions";
 declare const mp: MP;
 
 const isMine = (name: string): boolean => {

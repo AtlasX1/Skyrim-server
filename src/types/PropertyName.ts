@@ -19,7 +19,6 @@ type SystemPropertyName =
  * Custom Properties
  */
 type CustomPropertyName =
-<<<<<<< HEAD
   | "isDead"
   | "scale"
   | "spawnPoint"
@@ -40,29 +39,7 @@ type CustomPropertyName =
   | "healthNumChanges"
   | "magickaNumChanges"
   | "staminaNumChanges"
-  | "activeProfession";
-=======
-	| 'isDead'
-	| 'scale'
-	| 'spawnPoint'
-	| 'consoleOutput'
-	| 'notification'
-	| 'eval'
-	| 'av_health'
-	| 'av_magicka'
-	| 'av_stamina'
-	| 'av_healrate'
-	| 'av_healratemult'
-	| 'av_staminarate'
-	| 'av_staminaratemult'
-	| 'av_magickarate'
-	| 'av_magickaratemult'
-	| 'av_mp_healthdrain'
-	| 'av_mp_magickadrain'
-	| 'av_mp_staminadrain'
-	| 'healthNumChanges'
-	| 'magickaNumChanges'
-	| 'staminaNumChanges';
->>>>>>> 93596608c9ee5d3408ae2de5a249856a097abb75
+  | "activeProfession"
+  | "eval";
 
 export type PropertyName = SystemPropertyName | CustomPropertyName;

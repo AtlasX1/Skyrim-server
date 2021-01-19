@@ -1,12 +1,6 @@
-<<<<<<< HEAD:src/utils/utils.ts
 import { MP } from "../platform";
 import minify from "string-minify";
-import { EventName } from "types/EventName";
-=======
-import { MP } from '../platform';
-import minify from 'string-minify';
-import { EventName } from '../types/EventName';
->>>>>>> 93596608c9ee5d3408ae2de5a249856a097abb75:src/utility/utils.ts
+import { EventName } from "../types/EventName";
 
 declare var global: any;
 declare const mp: MP;

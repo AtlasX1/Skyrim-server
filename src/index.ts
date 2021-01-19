@@ -1,6 +1,6 @@
-<<<<<<< HEAD
-import { utils } from "./utils/utils";
-import { devCommandsInit, minesInit, spawnSystemInit } from "./mechanics";
+import { utils } from "./utility/utils";
+// import { devCommandsInit, minesInit, spawnSystemInit } from "./systems";
+import { minesInit, spawnSystemInit } from "./mechanics";
 
 import {
   consoleOutputPropInit,
@@ -10,7 +10,7 @@ import {
   playerRacePropInit,
   scalePropInit,
   activeProfessionInit,
-} from "./property";
+} from "./properties";
 
 import {
   _Init,
@@ -23,37 +23,9 @@ import {
   _onLocalDeathInit,
   _onCurrentCellChangeInit,
   _onActivateInit,
-} from "./event";
+} from "./events";
 
-import { actorValues, ActorValuesInit } from "./sync";
-=======
-import { utils } from './utility/utils';
-import { devCommandsInit, minesInit, spawnSystemInit } from './systems';
-
-import {
-	consoleOutputPropInit,
-	isDeadPropInit,
-	spawnPointPropInit,
-	playerLevelPropInit,
-	playerRacePropInit,
-	scalePropInit,
-} from './properties';
-
-import {
-	_Init,
-	_onBashInit,
-	_onHitInit,
-	_onPowerAttackInit,
-	_onRegenFinishInit,
-	_onSprintStateChangeInit,
-	_onConsoleCommandInit,
-	_onLocalDeathInit,
-	_onCurrentCellChangeInit,
-	_TestInit,
-} from './events';
-
-import { actorValues, ActorValuesInit } from './properties';
->>>>>>> 93596608c9ee5d3408ae2de5a249856a097abb75
+import { actorValues, ActorValuesInit } from "./properties";
 
 import { MP } from "./platform/mp";
 import { CTX } from "./platform";
@@ -94,11 +66,7 @@ _onSprintStateChangeInit();
 _onConsoleCommandInit();
 _onLocalDeathInit();
 _onCurrentCellChangeInit();
-<<<<<<< HEAD
 _onActivateInit();
-=======
-_TestInit();
->>>>>>> 93596608c9ee5d3408ae2de5a249856a097abb75
 /** */
 
 /** sync initialization */
@@ -107,7 +75,7 @@ ActorValuesInit();
 
 /** mechanics initialization */
 spawnSystemInit();
-devCommandsInit();
+// devCommandsInit();
 minesInit();
 /** */
 
