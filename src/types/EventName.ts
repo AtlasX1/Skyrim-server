@@ -19,6 +19,7 @@ type CustomEventName =
   | "_onActorValueFlushRequiredmagicka"
   | "_onSprintStateChange"
   | "_onHitScale"
-  | "_onActivate";
+  | "_onActivate"
+  | "_onFarm";
 
 export type EventName = SystemEventName | CustomEventName;

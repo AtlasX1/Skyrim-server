@@ -550,11 +550,7 @@ var currentProfessionName = "miner";
 var init = function () {
   utility_1.utils.hook("_onActivate", function (pcFormId, event) {
     try {
-      utility_1.utils.log("_onCurrentCellChange :::::::::::::>", event);
-
       if (event.target === 819963) {
-        var equipment = mp.get(pcFormId, "equipment");
-        utility_1.utils.log(equipment.inv);
         var activeProfession = mp.get(pcFormId, "activeProfession");
         var professionMiner = professions_1.PROFFESSIONS[currentProfessionName];
 
@@ -1004,13 +1000,32 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utility/utils":"utility/utils.ts","../properties/ActorValues":"properties/ActorValues.ts","../constants/constants":"constants/constants.ts"}],"mechanics/index.ts":[function(require,module,exports) {
+},{"../utility/utils":"utility/utils.ts","../properties/ActorValues":"properties/ActorValues.ts","../constants/constants":"constants/constants.ts"}],"mechanics/farm.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.spawnSystemInit = exports.minesInit = void 0;
+exports.init = void 0;
+
+var utility_1 = require("../utility");
+
+var init = function () {
+  utility_1.utils.hook("_onFarm", function (pcFormId, event) {
+    try {
+      utility_1.utils.log("_onFarm", event);
+    } catch (e) {}
+  });
+};
+
+exports.init = init;
+},{"../utility":"utility/index.ts"}],"mechanics/index.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.farmInit = exports.spawnSystemInit = exports.minesInit = void 0;
 
 var mines_1 = require("./mines");
 
@@ -1029,7 +1044,16 @@ Object.defineProperty(exports, "spawnSystemInit", {
     return spawnSystem_1.init;
   }
 });
-},{"./mines":"mechanics/mines.ts","./spawnSystem":"mechanics/spawnSystem.ts"}],"properties/isDead.ts":[function(require,module,exports) {
+
+var farm_1 = require("./farm");
+
+Object.defineProperty(exports, "farmInit", {
+  enumerable: true,
+  get: function () {
+    return farm_1.init;
+  }
+});
+},{"./mines":"mechanics/mines.ts","./spawnSystem":"mechanics/spawnSystem.ts","./farm":"mechanics/farm.ts"}],"properties/isDead.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1074,10 +1098,11 @@ function setActiveProfession() {
       if (ctx.value) {
         ctx.sp.Debug.notification("\u0422\u044B \u0442\u0435\u043F\u0435\u0440\u044C \u0440\u0430\u0431\u043E\u0442\u044F\u0433\u0430.");
         var player_1 = ctx.sp.Game.getPlayer();
+        player_1.unequipAll();
+        var mes = ctx.sp.Debug.messageBox("Text");
         Object.keys(ctx.value.equipment).forEach(function (item) {
           var currentItemId = ctx.value.equipment[item];
           var currentItem = ctx.sp.Game.getFormEx(currentItemId);
-          player_1.unequipAll();
 
           if (!player_1.isEquipped(currentItemId)) {
             player_1.equipItem(currentItem, false, false);
@@ -1810,18 +1835,46 @@ var init = function () {
       try {
         if (e.source && ctx.sp.Spell.from(e.source)) return;
         var target = ctx.getFormIdInServerFormat(e.target.getFormId());
-        var form = ctx.sp.Game.getForm(e.target.getFormId());
         ctx.sendEvent({
-          target: target,
-          form: form.getName()
+          target: target
         });
       } catch (e) {
-        ctx.sp.printConsole("Catch", e);
+        ctx.sp.printConsole("Catch _onActivate", e);
       }
     });
   }));
   utility_1.utils.hook("_onActivate", function (pcFormId, eventData) {
-    utility_1.utils.log(pcFormId, eventData);
+    utility_1.utils.log("_onActivate", pcFormId, eventData);
+  });
+};
+
+exports.init = init;
+},{"../utility":"utility/index.ts"}],"events/_onFarm.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = void 0;
+
+var utility_1 = require("../utility");
+
+var init = function () {
+  mp.makeEventSource("_onFarm", utility_1.getFunctionText(function () {
+    ctx.sp.on("activate", function (e) {
+      try {
+        if (e.source && ctx.sp.Spell.from(e.source)) return;
+        var target = ctx.getFormIdInServerFormat(e.target.getFormId());
+        ctx.sendEvent({
+          target: target
+        });
+      } catch (e) {
+        ctx.sp.printConsole("Catch _onFarm", e);
+      }
+    });
+  }));
+  utility_1.utils.hook("_onFarm", function (pcFormId, eventData) {
+    utility_1.utils.log(pcFormId);
   });
 };
 
@@ -1832,7 +1885,7 @@ exports.init = init;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports._onActivateInit = exports._onCurrentCellChangeInit = exports._onLocalDeathInit = exports._onConsoleCommandInit = exports._onSprintStateChangeInit = exports._onRegenFinishInit = exports._onPowerAttackInit = exports._onHitInit = exports._onBashInit = exports._Init = void 0;
+exports._onFarm = exports._onActivateInit = exports._onCurrentCellChangeInit = exports._onLocalDeathInit = exports._onConsoleCommandInit = exports._onSprintStateChangeInit = exports._onRegenFinishInit = exports._onPowerAttackInit = exports._onHitInit = exports._onBashInit = exports._Init = void 0;
 
 var _1 = require("./_");
 
@@ -1923,7 +1976,16 @@ Object.defineProperty(exports, "_onActivateInit", {
     return _onActivate_1.init;
   }
 });
-},{"./_":"events/_.ts","./_onBash":"events/_onBash.ts","./_onHit":"events/_onHit.ts","./_onPowerAttack":"events/_onPowerAttack.ts","./_onRegenFinish":"events/_onRegenFinish.ts","./_onSprintStateChange":"events/_onSprintStateChange.ts","./_onConsoleCommand":"events/_onConsoleCommand.ts","./_onLocalDeath":"events/_onLocalDeath.ts","./_onCurrentCellChange":"events/_onCurrentCellChange.ts","./_onActivate":"events/_onActivate.ts"}],"systems/devCommands.ts":[function(require,module,exports) {
+
+var _onFarm_1 = require("./_onFarm");
+
+Object.defineProperty(exports, "_onFarm", {
+  enumerable: true,
+  get: function () {
+    return _onFarm_1.init;
+  }
+});
+},{"./_":"events/_.ts","./_onBash":"events/_onBash.ts","./_onHit":"events/_onHit.ts","./_onPowerAttack":"events/_onPowerAttack.ts","./_onRegenFinish":"events/_onRegenFinish.ts","./_onSprintStateChange":"events/_onSprintStateChange.ts","./_onConsoleCommand":"events/_onConsoleCommand.ts","./_onLocalDeath":"events/_onLocalDeath.ts","./_onCurrentCellChange":"events/_onCurrentCellChange.ts","./_onActivate":"events/_onActivate.ts","./_onFarm":"events/_onFarm.ts"}],"systems/devCommands.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2225,10 +2287,13 @@ events_1._onCurrentCellChangeInit();
 
 events_1._onActivateInit();
 
+events_1._onFarm();
+
 properties_2.ActorValuesInit();
 mechanics_1.spawnSystemInit();
 systems_1.devCommandsInit();
 mechanics_1.minesInit();
+mechanics_1.farmInit();
 utils_1.utils.hook("onReinit", function (pcFormId, options) {
   if (properties_2.actorValues.setDefaults) {
     properties_2.actorValues.setDefaults(pcFormId, options);

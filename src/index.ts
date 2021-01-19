@@ -1,6 +1,6 @@
 import { utils } from "./utility/utils";
 // import { devCommandsInit, minesInit, spawnSystemInit } from "./systems";
-import { minesInit, spawnSystemInit } from "./mechanics";
+import { minesInit, spawnSystemInit, farmInit } from "./mechanics";
 
 import {
   consoleOutputPropInit,
@@ -25,6 +25,7 @@ import {
   _onLocalDeathInit,
   _onCurrentCellChangeInit,
   _onActivateInit,
+  _onFarm,
 } from "./events";
 
 import { actorValues, ActorValuesInit } from "./properties";
@@ -72,6 +73,7 @@ _onConsoleCommandInit();
 _onLocalDeathInit();
 _onCurrentCellChangeInit();
 _onActivateInit();
+_onFarm();
 /** */
 
 /** sync initialization */
@@ -82,6 +84,7 @@ ActorValuesInit();
 spawnSystemInit();
 devCommandsInit();
 minesInit();
+farmInit();
 /** */
 
 /**

@@ -1,9 +1,9 @@
 import { utils } from "../utility";
 import { MP } from "../platform";
 import { CellChangeEvent, ActivateEvent } from "../types/Events";
-import { mines } from "./data/locations/mines";
-import { PROFFESSIONS } from "./data/professions";
-import type { proffession, collectorNames } from "./data/professions";
+import { mines } from "./dataMechanics/locations/mines";
+import { PROFFESSIONS } from "./dataMechanics/professions";
+import type { proffession, collectorNames } from "./dataMechanics/professions";
 import { invenotry } from "../types/Inventory";
 // import { addItem } from "../helper";
 declare const mp: MP;
@@ -194,15 +194,10 @@ export const init = () => {
         //Проверка сосдали ли мы профессию шахтер
         if (professionMiner) {
           if (!activeProfession) {
-            mp.set(
-              pcFormId,
-              "activeProfession",
-
-              {
-                name: currentProfessionName,
-                equipment: professionMiner,
-              }
-            );
+            mp.set(pcFormId, "activeProfession", {
+              name: currentProfessionName,
+              equipment: professionMiner,
+            });
 
             addProfessionItems(pcFormId, "miner");
           } else {

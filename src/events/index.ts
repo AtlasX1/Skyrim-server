@@ -8,3 +8,4 @@ export { init as _onConsoleCommandInit } from "./_onConsoleCommand";
 export { init as _onLocalDeathInit } from "./_onLocalDeath";
 export { init as _onCurrentCellChangeInit } from "./_onCurrentCellChange";
 export { init as _onActivateInit } from "./_onActivate";
+export { init as _onFarm } from "./_onFarm";
