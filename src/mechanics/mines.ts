@@ -1,11 +1,11 @@
 import { utils } from "../utility";
 import { MP } from "../platform";
-import { ActivateEvent } from "../types/Events";
+import { CellChangeEvent, ActivateEvent } from "../types/Events";
 import { mines } from "./data/locations/mines";
 import { PROFFESSIONS } from "./data/professions";
+import type { proffession, collectorNames } from "./data/professions";
 import { invenotry } from "../types/Inventory";
-
-import type { collectorNames } from "./data/professions";
+// import { addItem } from "../helper";
 declare const mp: MP;
 
 const isMine = (name: string): boolean => {
@@ -31,10 +31,17 @@ const addItem = (formId: number, baseId: number, count: number) => {
   mp.set(formId, "inventory", inv);
 };
 
-const deleteItem = (formId: number, baseId: number, count: number): boolean => {
+const deleteItem = (
+  formId: number,
+  baseId: number,
+  count: number
+): { success: boolean; message: string } => {
   if (count <= 0) {
-    utils.log("Error: deleteItem() - Count <= 0 !");
-    return false;
+    return {
+      success: false,
+      message:
+        "Ошибка: Количество предметов для удаления должны быть больше 0!",
+    };
   }
   const inv: invenotry = mp.get(formId, "inventory");
   let newInv: invenotry = { entries: [] };
@@ -45,26 +52,40 @@ const deleteItem = (formId: number, baseId: number, count: number): boolean => {
   const newCount = inv.entries[deletedItemIndex].count - count;
 
   if (deletedItemIndex === -1) {
-    utils.log("Error: deleteItem() - Item not found!");
-    return false;
+    return {
+      success: false,
+      message: "Ошибка: Предмет не найден!",
+    };
   }
   if (newCount < 0) {
-    utils.log("Error: deleteItem() - new item count below zero.");
-    return false;
+    return {
+      success: false,
+      message: "Ошибка: Нехватает предметов чтобы их удалить!",
+    };
   }
   if (newCount === 0) {
     newInv.entries = inv.entries.filter((item) => item.baseId !== baseId);
+
     mp.set(formId, "inventory", newInv);
-    return true;
+
+    return {
+      success: true,
+      message: "Успех: Предмет удален из инвентаря.",
+    };
   }
   if (newCount > 0) {
     newInv.entries = inv.entries;
     newInv.entries[deletedItemIndex].count = newCount;
     mp.set(formId, "inventory", newInv);
-    return true;
+    return {
+      success: true,
+      message: `Успех: Количество предмета изменено на ${newCount}.`,
+    };
   }
-
-  return false;
+  return {
+    success: false,
+    message: "Error: deleteItem()!",
+  };
 };
 
 const isInInventory = (pcFormId: number, itemId?: number): boolean => {
@@ -103,13 +124,13 @@ const deleteProfessionItems = (
     gloves: isInInventory(pcFormId, currentProf.gloves),
   };
   const canEndProfession = {
-    tool: (actorHave.tool && currentProf.tool) || !currentProf.tool,
-    clothes: (actorHave.clothes && currentProf.clothes) || !currentProf.clothes,
-    boots: (actorHave.boots && currentProf.boots) || !currentProf.boots,
-    helmet: (actorHave.helmet && currentProf.helmet) || !currentProf.helmet,
-    gloves: (actorHave.gloves && currentProf.gloves) || !currentProf.gloves,
+    tool: (actorHave.tool && !!currentProf.tool) || !currentProf.tool,
+    clothes:
+      (actorHave.clothes && !!currentProf.clothes) || !currentProf.clothes,
+    boots: (actorHave.boots && !!currentProf.boots) || !currentProf.boots,
+    helmet: (actorHave.helmet && !!currentProf.helmet) || !currentProf.helmet,
+    gloves: (actorHave.gloves && !!currentProf.gloves) || !currentProf.gloves,
   };
-
   if (
     canEndProfession.tool &&
     canEndProfession.clothes &&
@@ -119,39 +140,32 @@ const deleteProfessionItems = (
   ) {
     if (currentProf.tool) {
       const isDeleted = deleteItem(pcFormId, currentProf.tool, 1);
-      if (!isDeleted) {
-        utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-      }
+      if (!isDeleted.success) utils.log(isDeleted.message);
     }
     if (currentProf.clothes) {
       const isDeleted = deleteItem(pcFormId, currentProf.clothes, 1);
-      if (!isDeleted) {
-        utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-      }
+      if (!isDeleted.success) utils.log(isDeleted.message);
     }
     if (currentProf.boots) {
       const isDeleted = deleteItem(pcFormId, currentProf.boots, 1);
-      if (!isDeleted) {
-        utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-      }
+      if (!isDeleted.success) utils.log(isDeleted.message);
     }
     if (currentProf.helmet) {
       const isDeleted = deleteItem(pcFormId, currentProf.helmet, 1);
-      if (!isDeleted) {
-        utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-      }
+      if (!isDeleted.success) utils.log(isDeleted.message);
     }
     if (currentProf.gloves) {
       const isDeleted = deleteItem(pcFormId, currentProf.gloves, 1);
-      if (!isDeleted) {
-        utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-      }
+      if (!isDeleted.success) utils.log(isDeleted.message);
     }
+    mp.set(pcFormId, "message", "Ты уволен! Экипировка возвращена.");
+
     return true;
   } else {
-    utils.log(
-      "Error: deleteProfessionItems() - Actor can not end profession! Must be all profession item`s."
-    );
+    const messageError =
+      "Ошибка: игрок не может уволиться, не все предметы могут быть возвращены!";
+    mp.set(pcFormId, "message", messageError);
+    utils.log(messageError);
     return false;
   }
 };
@@ -174,17 +188,22 @@ const currentProfessionName = "miner";
 export const init = () => {
   utils.hook("_onActivate", (pcFormId: number, event: ActivateEvent) => {
     try {
-      utils.log("_onCurrentCellChange :::::::::::::>", event);
-      if (event.target === 293316) {
+      if (event.target === 819963) {
         const activeProfession = mp.get(pcFormId, "activeProfession");
         const professionMiner = PROFFESSIONS[currentProfessionName];
         //Проверка сосдали ли мы профессию шахтер
         if (professionMiner) {
           if (!activeProfession) {
-            mp.set(pcFormId, "activeProfession", {
-              name: currentProfessionName,
-              equipment: professionMiner,
-            });
+            mp.set(
+              pcFormId,
+              "activeProfession",
+
+              {
+                name: currentProfessionName,
+                equipment: professionMiner,
+              }
+            );
+
             addProfessionItems(pcFormId, "miner");
           } else {
             if (activeProfession.name === currentProfessionName) {

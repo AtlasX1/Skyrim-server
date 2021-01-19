@@ -10,6 +10,8 @@ import {
   playerRacePropInit,
   scalePropInit,
   activeProfessionInit,
+  clientMessageInit,
+  teleportInit,
 } from "./properties";
 
 import {
@@ -31,6 +33,7 @@ import { MP } from "./platform/mp";
 import { CTX } from "./platform";
 
 import { defaultSpawnPoint } from "./constants/constants";
+import { devCommandsInit } from "./systems";
 
 declare const mp: MP;
 declare var global: any;
@@ -54,6 +57,8 @@ playerLevelPropInit();
 playerRacePropInit();
 scalePropInit();
 activeProfessionInit();
+clientMessageInit();
+teleportInit();
 /** */
 
 /** event initialization */
@@ -75,7 +80,7 @@ ActorValuesInit();
 
 /** mechanics initialization */
 spawnSystemInit();
-// devCommandsInit();
+devCommandsInit();
 minesInit();
 /** */
 
@@ -118,6 +123,7 @@ utils.hook("onReinit", (pcFormId: number, options: any) => {
   /** Проставляем наличие профессии */
 
   mp.set(pcFormId, "activeProfession", null);
+  mp.set(pcFormId, "message", null);
 });
 
 /** TEST */

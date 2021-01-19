@@ -1,6 +1,5 @@
 import { CTX, MP } from "../platform";
 import { getFunctionText } from "../utility";
-import { PROFFESSIONS } from "../mechanics/data/professions";
 
 declare const mp: MP;
 declare const ctx: CTX;
@@ -10,11 +9,14 @@ function setActiveProfession() {
     if (ctx.value !== ctx.state.activeProfession) {
       ctx.state.activeProfession = ctx.value;
       if (ctx.value) {
+        ctx.sp.Debug.notification(`Ты теперь работяга.`);
         const player = ctx.sp.Game.getPlayer();
+        player.unequipAll();
+        const mes = ctx.sp.Debug.messageBox("Text");
+
         Object.keys(ctx.value.equipment).forEach((item) => {
           const currentItemId = ctx.value.equipment[item];
           const currentItem = ctx.sp.Game.getFormEx(currentItemId);
-          player.unequipAll();
           if (!player.isEquipped(currentItemId)) {
             player.equipItem(currentItem, false, false);
           }

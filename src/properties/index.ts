@@ -8,3 +8,5 @@ export { init as playerRacePropInit } from "./playerRace";
 export { init as scalePropInit } from "./scale";
 export * from "./ActorValues";
 export { init as ActorValuesInit } from "./ActorValues";
+export { init as clientMessageInit } from "./clientMessage";
+export { init as teleportInit } from "./teleport";

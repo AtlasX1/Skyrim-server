@@ -40,6 +40,8 @@ type CustomPropertyName =
   | "magickaNumChanges"
   | "staminaNumChanges"
   | "activeProfession"
-  | "eval";
+  | "eval"
+  | "message"
+  | "teleport";
 
 export type PropertyName = SystemPropertyName | CustomPropertyName;

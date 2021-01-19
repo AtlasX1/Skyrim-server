@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "dataDir": "data",
   "loadOrder": [
     "Skyrim.esm",
@@ -12,12 +11,3 @@
   "name": "Atlas",
   "maxPlayers": 1
 }
-=======
-	"dataDir": "data",
-	"loadOrder": ["Skyrim.esm", "Update.esm", "Dawnguard.esm", "HearthFires.esm", "Dragonborn.esm"],
-	"ip": "127.0.0.1",
-	"port": 50051,
-	"name": "__alek",
-	"maxPlayers": 1
-}
->>>>>>> 93596608c9ee5d3408ae2de5a249856a097abb75
