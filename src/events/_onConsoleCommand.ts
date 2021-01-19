@@ -1,5 +1,4 @@
-import { CTX } from 'platform';
-import { getFunctionText } from 'utils';
+import { CTX } from '../platform';
 
 declare const ctx: CTX;
 

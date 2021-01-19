@@ -1,20 +1,23 @@
-import { utils } from '../utils/utils';
-import { consoleOutput } from '../property/consoleOutput';
-import { actorValues } from '../sync/ActorValues';
+import { utils } from '../utility/utils';
+import { consoleOutput } from '../properties/consoleOutput';
+import { actorValues } from '../properties/ActorValues';
 import { spawnSystem } from './spawnSystem';
 import { AttrAll } from '../types/Attr';
-import { MP } from '../platform';
-declare const mp: MP;
+import { currentActor } from '../constants/constants';
+import { CTX, MP } from '../platform';
 
-const chooseFormId = (pcFormId: number, selectedFormId: number) => {
+declare const mp: MP;
+declare const ctx: CTX;
+
+const chooseFormId = (pcFormId: number, selectedFormId?: number) => {
 	return selectedFormId ? selectedFormId : pcFormId;
 };
 
-const chooseTip = (pcFormId: number, selectedFormId: number) => {
+const chooseTip = (pcFormId: number, selectedFormId?: number) => {
 	return selectedFormId ? '(selected)' : '(your character)';
 };
 
-const reinit = (pcFormId: number, selectedFormId: number) => {
+export const reinit = (pcFormId: number, selectedFormId?: number) => {
 	const targetFormId = chooseFormId(pcFormId, selectedFormId);
 	const tip = chooseTip(pcFormId, selectedFormId);
 
@@ -82,20 +85,31 @@ const spawnpoint = (pcFormId: number, selectedFormId: number) => {
 
 export const init = () => {
 	utils.hook('_onConsoleCommand', (pcFormId: number, ...args: any[]) => {
-		const selectedFormId = args[0] !== 0x14 ? args[0] : pcFormId;
+		const selectedFormId = args[0] !== currentActor ? args[0] : pcFormId;
 		const sub = args[1];
 		const arg0 = args[2];
 		const arg1 = args[3];
-		if (sub === 'reinit') {
-			reinit(pcFormId, selectedFormId);
-		} else if (sub === 'setav') {
-			setav(pcFormId, selectedFormId, arg0, arg1);
-		} else if (sub === 'kill') {
-			kill(pcFormId, selectedFormId);
-		} else if (sub === 'spawn') {
-			spawn(pcFormId, selectedFormId);
-		} else if (sub === 'spawnpoint') {
-			spawnpoint(pcFormId, selectedFormId);
+		switch (sub) {
+			case 'reinit':
+				reinit(pcFormId, selectedFormId);
+				break;
+			case 'setav':
+				setav(pcFormId, selectedFormId, arg0, arg1);
+				break;
+			case 'kill':
+				kill(pcFormId, selectedFormId);
+				break;
+			case 'spawn':
+				spawn(pcFormId, selectedFormId);
+				break;
+			case 'spawnpoint':
+				spawnpoint(pcFormId, selectedFormId);
+				break;
+			case 'tp':
+				break;
+
+			default:
+				break;
 		}
 	});
 };

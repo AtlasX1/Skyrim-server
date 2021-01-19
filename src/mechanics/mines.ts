@@ -1,6 +1,6 @@
-import { utils } from "../utils/utils";
+import { utils } from "../utility";
 import { MP } from "../platform";
-import { CellChangeEvent, ActivateEvent } from "types/Events";
+import { CellChangeEvent, ActivateEvent } from "../types/Events";
 import { mines } from "./data/locations/mines";
 import { PROFFESSIONS } from "./data/professions";
 import type { proffession, collectorNames } from "./data/professions";

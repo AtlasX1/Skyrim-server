@@ -1,6 +1,6 @@
-import { CellChangeEvent } from 'types/Events';
 import { CTX, MP } from '../platform';
-import { getFunctionText, utils } from '../utils';
+import { CellChangeEvent } from '../types/Events';
+import { getFunctionText, utils } from '../utility';
 
 declare const mp: MP;
 declare const ctx: CTX;
@@ -15,6 +15,7 @@ function _onCurrentCellChange() {
 					result.cell = {
 						id: currentCell.getFormID(),
 						name: currentCell.getName(),
+						type: currentCell.getType(),
 					};
 					ctx.sendEvent(result);
 				}
@@ -36,9 +37,9 @@ export const init = () => {
 	);
 	utils.hook(
 		'_onCurrentCellChange',
-		(pcformId: number, event: CellChangeEvent) => {
+		(pcFormId: number, event: CellChangeEvent) => {
 			if (!event.hasError) {
-				utils.log('[_onCurrentCellChange]', pcformId, event.cell);
+				utils.log('[_onCurrentCellChange]', pcFormId, event.cell);
 			}
 		}
 	);

@@ -1,6 +1,6 @@
 import { CTX, MP } from '../platform';
-import { actorValues } from '../sync';
-import { getFunctionText, utils } from '../utils';
+import { actorValues } from '../properties';
+import { getFunctionText, utils } from '../utility';
 import { Attr, AttrAll } from '../types/Attr';
 
 declare const mp: MP;
@@ -34,7 +34,7 @@ export const init = () => {
 	);
 
 	const sprintAttr: Attr = 'stamina';
-	const staminaReduce = 10;
+	const staminaReduce = -10;
 	utils.hook('_onSprintStateChange', (pcFormId: number, newState: any) => {
 		switch (newState) {
 			case 'start':
