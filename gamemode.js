@@ -897,28 +897,38 @@ exports.PROFFESSIONS = {
     boots: parseInt("0001BE1B", 16)
   }
 };
-},{}],"mechanics/mines.ts":[function(require,module,exports) {
+},{}],"helper/events.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.init = void 0;
-
-var utils_1 = require("../utils/utils");
-
-var mines_1 = require("./data/locations/mines");
-
-var professions_1 = require("./data/professions");
-
-var isMine = function (name) {
-  var findedMine = mines_1.mines.find(function (el) {
-    return el.ruName === name;
-  });
-  return findedMine ? true : false;
+exports.HIT_EVENT = exports.EVENTS_NAME = void 0;
+exports.EVENTS_NAME = {
+  _: "_",
+  bash: "_onBash",
+  consoleCommand: "_onConsoleCommand",
+  currentCellChange: "_onCurrentCellChange",
+  hit: "_onHit",
+  localDeath: "_onLocalDeath",
+  powerAttack: "_onPowerAttack",
+  actorValueFlushRequiredhealth: "_onActorValueFlushRequiredhealth",
+  actorValueFlushRequiredstamina: "_onActorValueFlushRequiredstamina",
+  actorValueFlushRequiredmagicka: "_onActorValueFlushRequiredmagicka",
+  sprintStateChange: "_onSprintStateChange",
+  hitScale: "_onHitScale",
+  activate: "_onActivate"
 };
+exports.HIT_EVENT = "_onHit";
+},{}],"helper/functions.ts":[function(require,module,exports) {
+"use strict";
 
-var addItem = function (formId, baseId, count) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addItem = void 0;
+
+var addItem = function (formId, baseId, count, mp) {
   if (count <= 0) return;
   var inv = mp.get(formId, "inventory");
   var added = false;
@@ -941,6 +951,57 @@ var addItem = function (formId, baseId, count) {
   }
 
   mp.set(formId, "inventory", inv);
+};
+
+exports.addItem = addItem;
+},{}],"helper/index.ts":[function(require,module,exports) {
+"use strict";
+
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function () {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __exportStar = this && this.__exportStar || function (m, exports) {
+  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+__exportStar(require("./events"), exports);
+
+__exportStar(require("./functions"), exports);
+},{"./events":"helper/events.ts","./functions":"helper/functions.ts"}],"mechanics/mines.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = void 0;
+
+var utils_1 = require("../utils/utils");
+
+var mines_1 = require("./data/locations/mines");
+
+var professions_1 = require("./data/professions");
+
+var helper_1 = require("../helper");
+
+var isMine = function (name) {
+  var findedMine = mines_1.mines.find(function (el) {
+    return el.ruName === name;
+  });
+  return findedMine ? true : false;
 };
 
 var deleteItem = function (formId, baseId, count) {
@@ -1085,11 +1146,11 @@ var addProfessionItems = function (pcFormId, name) {
     return;
   }
 
-  if (currentProf.tool) addItem(pcFormId, currentProf.tool, 1);
-  if (currentProf.clothes) addItem(pcFormId, currentProf.clothes, 1);
-  if (currentProf.boots) addItem(pcFormId, currentProf.boots, 1);
-  if (currentProf.helmet) addItem(pcFormId, currentProf.helmet, 1);
-  if (currentProf.gloves) addItem(pcFormId, currentProf.gloves, 1);
+  if (currentProf.tool) helper_1.addItem(pcFormId, currentProf.tool, 1, mp);
+  if (currentProf.clothes) helper_1.addItem(pcFormId, currentProf.clothes, 1, mp);
+  if (currentProf.boots) helper_1.addItem(pcFormId, currentProf.boots, 1, mp);
+  if (currentProf.helmet) helper_1.addItem(pcFormId, currentProf.helmet, 1, mp);
+  if (currentProf.gloves) helper_1.addItem(pcFormId, currentProf.gloves, 1, mp);
 };
 
 var currentProfessionName = "miner";
@@ -1130,7 +1191,7 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utils/utils":"utils/utils.ts","./data/locations/mines":"mechanics/data/locations/mines.ts","./data/professions":"mechanics/data/professions/index.ts"}],"mechanics/index.ts":[function(require,module,exports) {
+},{"../utils/utils":"utils/utils.ts","./data/locations/mines":"mechanics/data/locations/mines.ts","./data/professions":"mechanics/data/professions/index.ts","../helper":"helper/index.ts"}],"mechanics/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1323,7 +1384,7 @@ function setActiveProfession() {
         Object.keys(ctx.value.equipment).forEach(function (item) {
           var currentItemId = ctx.value.equipment[item];
           var currentItem = ctx.sp.Game.getFormEx(currentItemId);
-          ctx.sp.printConsole(currentItem);
+          player_1.unequipAll();
 
           if (!player_1.isEquipped(currentItemId)) {
             player_1.equipItem(currentItem, false, false);

@@ -14,7 +14,7 @@ function setActiveProfession() {
         Object.keys(ctx.value.equipment).forEach((item) => {
           const currentItemId = ctx.value.equipment[item];
           const currentItem = ctx.sp.Game.getFormEx(currentItemId);
-          ctx.sp.printConsole(currentItem);
+          player.unequipAll();
           if (!player.isEquipped(currentItemId)) {
             player.equipItem(currentItem, false, false);
           }

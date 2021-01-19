@@ -4,34 +4,9 @@ import { CellChangeEvent, ActivateEvent } from "types/Events";
 import { mines } from "./data/locations/mines";
 import { PROFFESSIONS } from "./data/professions";
 import type { proffession, collectorNames } from "./data/professions";
-
 import { invenotry } from "../types/Inventory";
+// import { addItem } from "../helper";
 declare const mp: MP;
-
-// const simplePickaxe = 0xe3c16;
-// const items = [
-//   simplePickaxe,
-//   0xaccd1,
-//   0xb974f,
-//   0x7a14e,
-//   0x7a132,
-//   0x10df21,
-//   0x100e3b,
-//   0xb505c,
-//   0xb50c1,
-// ];
-// interface Inventar {
-//   baseId: number;
-//   count: number;
-//   added?: boolean;
-// }
-
-/**
- * Определение того, что игрок вошел в шахту
- * пока костыльно по ИД 91570 (Дом Серой Гривы)
- * TODO: Понять как правильно определить что игрок в шахте
- * @param formId
- */
 
 const isMine = (name: string): boolean => {
   const findedMine = mines.find((el) => el.ruName === name);
