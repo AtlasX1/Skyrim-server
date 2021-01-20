@@ -241,7 +241,7 @@ Object.defineProperty(exports, "__esModule", {
 __exportStar(require("./typeCheck"), exports);
 
 __exportStar(require("./utils"), exports);
-},{"./typeCheck":"utility/typeCheck.ts","./utils":"utility/utils.ts"}],"mechanics/data/locations/mines.ts":[function(require,module,exports) {
+},{"./typeCheck":"utility/typeCheck.ts","./utils":"utility/utils.ts"}],"mechanics/dataMechanics/locations/mines.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -333,7 +333,7 @@ exports.mines = [{
   name: "HaltedStreamCamp01",
   ruName: "Лагерь Чистых родников"
 }];
-},{}],"mechanics/data/professions/index.ts":[function(require,module,exports) {
+},{}],"mechanics/dataMechanics/professions/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -357,9 +357,9 @@ exports.init = void 0;
 
 var utility_1 = require("../utility");
 
-var mines_1 = require("./data/locations/mines");
+var mines_1 = require("./dataMechanics/locations/mines");
 
-var professions_1 = require("./data/professions");
+var professions_1 = require("./dataMechanics/professions");
 
 var isMine = function (name) {
   var findedMine = mines_1.mines.find(function (el) {
@@ -581,7 +581,7 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utility":"utility/index.ts","./data/locations/mines":"mechanics/data/locations/mines.ts","./data/professions":"mechanics/data/professions/index.ts"}],"properties/ActorValues.ts":[function(require,module,exports) {
+},{"../utility":"utility/index.ts","./dataMechanics/locations/mines":"mechanics/dataMechanics/locations/mines.ts","./dataMechanics/professions":"mechanics/dataMechanics/professions/index.ts"}],"properties/ActorValues.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {

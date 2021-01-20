@@ -190,19 +190,22 @@ export const init = () => {
     try {
       if (event.target === 819963) {
         const activeProfession = mp.get(pcFormId, "activeProfession");
-        const professionMiner = PROFFESSIONS[currentProfessionName];
+        const currentProfession = PROFFESSIONS[currentProfessionName];
         //Проверка сосдали ли мы профессию шахтер
-        if (professionMiner) {
+        if (currentProfession) {
           if (!activeProfession) {
             mp.set(pcFormId, "activeProfession", {
               name: currentProfessionName,
-              equipment: professionMiner,
+              equipment: currentProfession,
             });
 
-            addProfessionItems(pcFormId, "miner");
+            addProfessionItems(pcFormId, currentProfessionName);
           } else {
             if (activeProfession.name === currentProfessionName) {
-              const isDeleted = deleteProfessionItems(pcFormId, "miner");
+              const isDeleted = deleteProfessionItems(
+                pcFormId,
+                currentProfessionName
+              );
               if (!isDeleted) {
                 utils.log(
                   "Error: deleteProfessionItems() - error in deleteItem() "
