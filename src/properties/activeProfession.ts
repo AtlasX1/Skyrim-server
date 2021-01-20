@@ -1,4 +1,5 @@
 import { CTX, MP } from "../platform";
+import { Message } from "../platform/skyrimPlatform";
 import { getFunctionText } from "../utility";
 
 declare const mp: MP;
@@ -11,16 +12,21 @@ function setActiveProfession() {
       if (ctx.value) {
         ctx.sp.Debug.notification(`Ты теперь работяга.`);
         const player = ctx.sp.Game.getPlayer();
-        player.unequipAll();
-        const mes = ctx.sp.Debug.messageBox("Text");
 
-        Object.keys(ctx.value.equipment).forEach((item) => {
-          const currentItemId = ctx.value.equipment[item];
-          const currentItem = ctx.sp.Game.getFormEx(currentItemId);
-          if (!player.isEquipped(currentItemId)) {
-            player.equipItem(currentItem, false, false);
-          }
-        });
+        player.unequipAll();
+        if (ctx.value.equipment) {
+          const equipItems = Object.keys(ctx.value.equipment);
+
+          equipItems.forEach((item) => {
+            const currentItem = ctx.sp.Game.getFormEx(
+              ctx.value.equipment[item]
+            );
+
+            if (!player.isEquipped(currentItem)) {
+              player.equipItem(currentItem, false, false);
+            }
+          });
+        }
       }
       ctx.sp.printConsole(ctx.value);
     }

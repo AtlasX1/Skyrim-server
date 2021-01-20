@@ -4,7 +4,7 @@ import { CellChangeEvent, ActivateEvent } from "../types/Events";
 import { mines } from "./dataMechanics/locations/mines";
 import { PROFFESSIONS } from "./dataMechanics/professions";
 import type { proffession, collectorNames } from "./dataMechanics/professions";
-import { invenotry } from "../types/Inventory";
+import { inventory, inventoryEquip } from "../types/Inventory";
 // import { addItem } from "../helper";
 declare const mp: MP;
 
@@ -43,8 +43,8 @@ const deleteItem = (
         "Ошибка: Количество предметов для удаления должны быть больше 0!",
     };
   }
-  const inv: invenotry = mp.get(formId, "inventory");
-  let newInv: invenotry = { entries: [] };
+  const inv: inventory = mp.get(formId, "inventory");
+  let newInv: inventory = { entries: [] };
 
   const deletedItemIndex = inv.entries.findIndex(
     (item) => item.baseId === baseId
@@ -90,14 +90,22 @@ const deleteItem = (
 
 const isInInventory = (pcFormId: number, itemId?: number): boolean => {
   if (!itemId) return false;
-  let inv: invenotry = mp.get(pcFormId, "inventory");
+  let inv: inventory = mp.get(pcFormId, "inventory");
   return inv.entries.find((el) => el.baseId === itemId) ? true : false;
 };
 
 const isEquip = (pcFormId: number, itemId: number): boolean => {
-  const inv: invenotry = mp.get(pcFormId, "equipment");
+  const inv: inventory = mp.get(pcFormId, "equipment");
   const item = inv.entries.find((item) => item.baseId === itemId);
   return item?.worn ?? false;
+};
+
+const allEquipItems = (pcFormId: number): inventoryEquip => {
+  const myInv: inventoryEquip = mp.get(pcFormId, "equipment");
+  const myEquip: inventoryEquip = {
+    inv: { entries: myInv.inv.entries.filter((item) => item.worn) },
+  };
+  return myEquip;
 };
 
 const deleteProfessionItems = (
@@ -188,33 +196,34 @@ const currentProfessionName = "miner";
 export const init = () => {
   utils.hook("_onActivate", (pcFormId: number, event: ActivateEvent) => {
     try {
-      if (event.target === 819963) {
+      if (event.target === 403464) {
         const activeProfession = mp.get(pcFormId, "activeProfession");
         const currentProfession = PROFFESSIONS[currentProfessionName];
         //Проверка сосдали ли мы профессию шахтер
         if (currentProfession) {
-          if (!activeProfession) {
-            mp.set(pcFormId, "activeProfession", {
-              name: currentProfessionName,
-              equipment: currentProfession,
-            });
+          utils.log(allEquipItems(pcFormId).inv);
+          // if (!activeProfession) {
+          //   mp.set(pcFormId, "activeProfession", {
+          //     name: currentProfessionName,
+          //     equipment: currentProfession,
+          //   });
 
-            addProfessionItems(pcFormId, currentProfessionName);
-          } else {
-            if (activeProfession.name === currentProfessionName) {
-              const isDeleted = deleteProfessionItems(
-                pcFormId,
-                currentProfessionName
-              );
-              if (!isDeleted) {
-                utils.log(
-                  "Error: deleteProfessionItems() - error in deleteItem() "
-                );
-              } else {
-                mp.set(pcFormId, "activeProfession", null);
-              }
-            }
-          }
+          //   addProfessionItems(pcFormId, currentProfessionName);
+          // } else {
+          //   if (activeProfession.name === currentProfessionName) {
+          // const isDeleted = deleteProfessionItems(
+          //       pcFormId,
+          //       currentProfessionName
+          //     );
+          //     if (!isDeleted) {
+          //       utils.log(
+          //         "Error: deleteProfessionItems() - error in deleteItem() "
+          //       );
+          //     } else {
+          //       mp.set(pcFormId, "activeProfession", null);
+          //     }
+          //   }
+          // }
         }
       }
     } catch (err) {

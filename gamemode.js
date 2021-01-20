@@ -469,6 +469,18 @@ var isEquip = function (pcFormId, itemId) {
   return (_a = item === null || item === void 0 ? void 0 : item.worn) !== null && _a !== void 0 ? _a : false;
 };
 
+var allEquipItems = function (pcFormId) {
+  var myInv = mp.get(pcFormId, "equipment");
+  var myEquip = {
+    inv: {
+      entries: myInv.inv.entries.filter(function (item) {
+        return item.worn;
+      })
+    }
+  };
+  return myEquip;
+};
+
 var deleteProfessionItems = function (pcFormId, name) {
   utility_1.utils.log("deleteProfessionItems");
   var currentProf = professions_1.PROFFESSIONS[name];
@@ -550,28 +562,12 @@ var currentProfessionName = "miner";
 var init = function () {
   utility_1.utils.hook("_onActivate", function (pcFormId, event) {
     try {
-      if (event.target === 819963) {
+      if (event.target === 403464) {
         var activeProfession = mp.get(pcFormId, "activeProfession");
-        var professionMiner = professions_1.PROFFESSIONS[currentProfessionName];
+        var currentProfession = professions_1.PROFFESSIONS[currentProfessionName];
 
-        if (professionMiner) {
-          if (!activeProfession) {
-            mp.set(pcFormId, "activeProfession", {
-              name: currentProfessionName,
-              equipment: professionMiner
-            });
-            addProfessionItems(pcFormId, "miner");
-          } else {
-            if (activeProfession.name === currentProfessionName) {
-              var isDeleted = deleteProfessionItems(pcFormId, "miner");
-
-              if (!isDeleted) {
-                utility_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
-              } else {
-                mp.set(pcFormId, "activeProfession", null);
-              }
-            }
-          }
+        if (currentProfession) {
+          utility_1.utils.log(allEquipItems(pcFormId).inv);
         }
       }
     } catch (err) {
@@ -1099,15 +1095,17 @@ function setActiveProfession() {
         ctx.sp.Debug.notification("\u0422\u044B \u0442\u0435\u043F\u0435\u0440\u044C \u0440\u0430\u0431\u043E\u0442\u044F\u0433\u0430.");
         var player_1 = ctx.sp.Game.getPlayer();
         player_1.unequipAll();
-        var mes = ctx.sp.Debug.messageBox("Text");
-        Object.keys(ctx.value.equipment).forEach(function (item) {
-          var currentItemId = ctx.value.equipment[item];
-          var currentItem = ctx.sp.Game.getFormEx(currentItemId);
 
-          if (!player_1.isEquipped(currentItemId)) {
-            player_1.equipItem(currentItem, false, false);
-          }
-        });
+        if (ctx.value.equipment) {
+          var equipItems = Object.keys(ctx.value.equipment);
+          equipItems.forEach(function (item) {
+            var currentItem = ctx.sp.Game.getFormEx(ctx.value.equipment[item]);
+
+            if (!player_1.isEquipped(currentItem)) {
+              player_1.equipItem(currentItem, false, false);
+            }
+          });
+        }
       }
 
       ctx.sp.printConsole(ctx.value);
