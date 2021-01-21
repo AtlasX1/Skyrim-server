@@ -2,6 +2,7 @@ type mine = {
   baseId: string;
   name: string;
   ruName: string;
+  worldId?: string;
 };
 
 export const mines: mine[] = [
@@ -109,5 +110,6 @@ export const mines: mine[] = [
     baseId: "00043FAB",
     name: "HaltedStreamCamp01",
     ruName: "Лагерь Чистых родников",
+    worldId: "43fab:Skyrim.esm",
   },
 ];

@@ -20,8 +20,4 @@ export const init = () => {
       });
     })
   );
-
-  utils.hook("_onActivate", (pcFormId: number, eventData: any) => {
-    utils.log("_onActivate", pcFormId, eventData);
-  });
 };

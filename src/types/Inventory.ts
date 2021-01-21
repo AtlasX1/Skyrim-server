@@ -1,11 +1,9 @@
-type entries = {
-  baseId: number;
-  count: number;
-  worn?: true;
-};
-
 export type inventory = {
-  entries: entries[];
+  entries: {
+    baseId: number;
+    count: number;
+    worn?: true;
+  }[];
 };
 export type inventoryEquip = {
   inv: {

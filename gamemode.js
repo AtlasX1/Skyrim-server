@@ -331,7 +331,8 @@ exports.mines = [{
 }, {
   baseId: "00043FAB",
   name: "HaltedStreamCamp01",
-  ruName: "Лагерь Чистых родников"
+  ruName: "Лагерь Чистых родников",
+  worldId: "43fab:Skyrim.esm"
 }];
 },{}],"mechanics/dataMechanics/professions/index.ts":[function(require,module,exports) {
 "use strict";
@@ -347,6 +348,18 @@ exports.PROFFESSIONS = {
     boots: parseInt("0001BE1B", 16)
   }
 };
+},{}],"mechanics/dataMechanics/items/minerals.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.minerals = void 0;
+exports.minerals = [{
+  name: "Железная руда",
+  id: "00071CF3",
+  sourceName: "Железорудная жила"
+}];
 },{}],"mechanics/mines.ts":[function(require,module,exports) {
 "use strict";
 
@@ -361,9 +374,22 @@ var mines_1 = require("./dataMechanics/locations/mines");
 
 var professions_1 = require("./dataMechanics/professions");
 
+var minerals_1 = require("./dataMechanics/items/minerals");
+
+var getMessage = function (_a) {
+  var message = _a.message,
+      type = _a.type,
+      baseId = _a.baseId;
+  return {
+    message: message,
+    type: type,
+    baseId: baseId
+  };
+};
+
 var isMine = function (name) {
   var findedMine = mines_1.mines.find(function (el) {
-    return el.ruName === name;
+    return el.worldId === name;
   });
   return findedMine ? true : false;
 };
@@ -371,26 +397,24 @@ var isMine = function (name) {
 var addItem = function (formId, baseId, count) {
   if (count <= 0) return;
   var inv = mp.get(formId, "inventory");
-  var added = false;
+  var newInv = inv;
+  var item = inv.entries.find(function (item) {
+    return item.baseId === baseId;
+  });
 
-  for (var _i = 0, inv_1 = inv; _i < inv_1.length; _i++) {
-    var value = inv_1[_i];
-
-    if (Object.keys(value).length == 2 && value.baseId == baseId) {
-      value.count += count;
-      added = true;
-      break;
-    }
-  }
-
-  if (!added) {
-    inv.entries.push({
+  if (item) {
+    var itemIndex = inv.entries.findIndex(function (item) {
+      return item.baseId === baseId;
+    });
+    newInv.entries[itemIndex].count += count;
+    mp.set(formId, "inventory", newInv);
+  } else {
+    newInv.entries.push({
       baseId: baseId,
       count: count
     });
+    mp.set(formId, "inventory", newInv);
   }
-
-  mp.set(formId, "inventory", inv);
 };
 
 var deleteItem = function (formId, baseId, count) {
@@ -469,7 +493,7 @@ var isEquip = function (pcFormId, itemId) {
   return (_a = item === null || item === void 0 ? void 0 : item.worn) !== null && _a !== void 0 ? _a : false;
 };
 
-var allEquipItems = function (pcFormId) {
+var getAllEquipItems = function (pcFormId) {
   var myInv = mp.get(pcFormId, "equipment");
   var myEquip = {
     inv: {
@@ -531,11 +555,17 @@ var deleteProfessionItems = function (pcFormId, name) {
       if (!isDeleted.success) utility_1.utils.log(isDeleted.message);
     }
 
-    mp.set(pcFormId, "message", "Ты уволен! Экипировка возвращена.");
+    mp.set(pcFormId, "message", getMessage({
+      type: "message",
+      message: "Ты уволен! Экипировка возвращена."
+    }));
     return true;
   } else {
     var messageError = "Ошибка: игрок не может уволиться, не все предметы могут быть возвращены!";
-    mp.set(pcFormId, "message", messageError);
+    mp.set(pcFormId, "message", getMessage({
+      type: "message",
+      message: messageError
+    }));
     utility_1.utils.log(messageError);
     return false;
   }
@@ -557,17 +587,93 @@ var addProfessionItems = function (pcFormId, name) {
   if (currentProf.gloves) addItem(pcFormId, currentProf.gloves, 1);
 };
 
+var setProfession = function (pcFormId, professionName) {
+  var currentProfession = professions_1.PROFFESSIONS[currentProfessionName];
+  addProfessionItems(pcFormId, currentProfessionName);
+  mp.set(pcFormId, "activeProfession", {
+    name: professionName,
+    equipment: currentProfession,
+    oldEquipment: getAllEquipItems(pcFormId).inv.entries,
+    isActive: true
+  });
+};
+
+var deleteProfession = function (pcFormId) {
+  var isDeleted = deleteProfessionItems(pcFormId, currentProfessionName);
+
+  if (!isDeleted) {
+    utility_1.utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+  } else {
+    var oldEquipment = mp.get(pcFormId, "activeProfession").oldEquipment;
+    utility_1.utils.log(oldEquipment);
+    mp.set(pcFormId, "activeProfession", {
+      name: null,
+      equipment: null,
+      oldEquipment: oldEquipment,
+      isActive: false
+    });
+  }
+};
+
+var sellItems = function (pcFormId, items) {
+  var inv = mp.get(pcFormId, "inventory");
+  items.forEach(function (item) {
+    var _a, _b;
+
+    var itemId = (_a = minerals_1.minerals.find(function (mineral) {
+      return mineral.name === item.name;
+    })) === null || _a === void 0 ? void 0 : _a.id;
+
+    if (itemId !== undefined) {
+      var itemCount = (_b = inv.entries.find(function (itemFind) {
+        return itemFind.baseId === parseInt(itemId, 16);
+      })) === null || _b === void 0 ? void 0 : _b.count;
+
+      if (itemCount && itemCount > 0) {
+        deleteItem(pcFormId, parseInt(itemId, 16), itemCount);
+        mp.set(pcFormId, "message", getMessage({
+          type: "message",
+          message: "\u0423\u0434\u0430\u043B\u0435\u043D\u043E " + item.name + ": " + itemCount + ", \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u043E \u0437\u043E\u043B\u043E\u0442\u043E " + itemCount * item.price + "."
+        }));
+        addItem(pcFormId, 15, itemCount * item.price);
+      }
+    }
+  });
+};
+
 var currentProfessionName = "miner";
+var sell = true;
 
 var init = function () {
-  utility_1.utils.hook("_onActivate", function (pcFormId, event) {
+  utility_1.utils.hook("_onCurrentCellChange", function (pcFormId, event) {
     try {
-      if (event.target === 403464) {
-        var activeProfession = mp.get(pcFormId, "activeProfession");
-        var currentProfession = professions_1.PROFFESSIONS[currentProfessionName];
+      if (isMine(mp.get(pcFormId, "worldOrCellDesc"))) {
+        var myProfession = mp.get(pcFormId, "activeProfession");
 
-        if (currentProfession) {
-          utility_1.utils.log(allEquipItems(pcFormId).inv);
+        if (myProfession === null) {
+          setProfession(pcFormId, currentProfessionName);
+        } else {
+          if (!myProfession.isActive) {
+            setProfession(pcFormId, currentProfessionName);
+          }
+        }
+      } else {
+        var myProfession = mp.get(pcFormId, "activeProfession");
+
+        if (myProfession.name === currentProfessionName) {
+          if (myProfession.isActive) {
+            deleteProfession(pcFormId);
+
+            if (sell) {
+              setTimeout(function () {
+                sellItems(pcFormId, [{
+                  name: "Железная руда",
+                  price: 10
+                }]);
+              }, 2000);
+              utility_1.utils.log("Sell");
+            }
+          }
         }
       }
     } catch (err) {
@@ -577,7 +683,7 @@ var init = function () {
 };
 
 exports.init = init;
-},{"../utility":"utility/index.ts","./dataMechanics/locations/mines":"mechanics/dataMechanics/locations/mines.ts","./dataMechanics/professions":"mechanics/dataMechanics/professions/index.ts"}],"properties/ActorValues.ts":[function(require,module,exports) {
+},{"../utility":"utility/index.ts","./dataMechanics/locations/mines":"mechanics/dataMechanics/locations/mines.ts","./dataMechanics/professions":"mechanics/dataMechanics/professions/index.ts","./dataMechanics/items/minerals":"mechanics/dataMechanics/items/minerals.ts"}],"properties/ActorValues.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -1006,16 +1112,72 @@ exports.init = void 0;
 
 var utility_1 = require("../utility");
 
+var minerals_1 = require("./dataMechanics/items/minerals");
+
+var getMessage = function (_a) {
+  var message = _a.message,
+      type = _a.type,
+      baseId = _a.baseId;
+  return {
+    message: message,
+    type: type,
+    baseId: baseId
+  };
+};
+
+var addItem = function (formId, baseId, count) {
+  if (count <= 0) return;
+  var inv = mp.get(formId, "inventory");
+  var newInv = inv;
+  var item = inv.entries.find(function (item) {
+    return item.baseId === baseId;
+  });
+
+  if (item) {
+    var itemIndex = inv.entries.findIndex(function (item) {
+      return item.baseId === baseId;
+    });
+    newInv.entries[itemIndex].count += count;
+    mp.set(formId, "inventory", newInv);
+    mp.set(formId, "message", getMessage({
+      type: "add",
+      baseId: baseId,
+      count: count
+    }));
+  } else {
+    newInv.entries.push({
+      baseId: baseId,
+      count: count
+    });
+    mp.set(formId, "inventory", newInv);
+    mp.set(formId, "message", getMessage({
+      type: "add",
+      baseId: baseId,
+      count: count
+    }));
+  }
+};
+
 var init = function () {
   utility_1.utils.hook("_onFarm", function (pcFormId, event) {
     try {
-      utility_1.utils.log("_onFarm", event);
-    } catch (e) {}
+      var mineralFormId_1 = minerals_1.minerals.find(function (mineral) {
+        return mineral.sourceName === event.mineralSource;
+      });
+
+      if (mineralFormId_1) {
+        setTimeout(function () {
+          return addItem(pcFormId, parseInt(mineralFormId_1.id, 16), 1);
+        }, 5000);
+      }
+    } catch (e) {
+      utility_1.utils.log("_onFarm", e);
+    }
   });
 };
 
 exports.init = init;
-},{"../utility":"utility/index.ts"}],"mechanics/index.ts":[function(require,module,exports) {
+},{"../utility":"utility/index.ts","./dataMechanics/items/minerals":"mechanics/dataMechanics/items/minerals.ts"}],"mechanics/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1092,14 +1254,24 @@ function setActiveProfession() {
       ctx.state.activeProfession = ctx.value;
 
       if (ctx.value) {
-        ctx.sp.Debug.notification("\u0422\u044B \u0442\u0435\u043F\u0435\u0440\u044C \u0440\u0430\u0431\u043E\u0442\u044F\u0433\u0430.");
         var player_1 = ctx.sp.Game.getPlayer();
-        player_1.unequipAll();
 
-        if (ctx.value.equipment) {
+        if (ctx.value.oldEquipment && !ctx.value.isActive) {
+          ctx.value.oldEquipment.forEach(function (itemId) {
+            var currentItem = ctx.sp.Game.getForm(itemId.baseId);
+            ctx.sp.printConsole(currentItem.getName());
+
+            if (!player_1.isEquipped(currentItem)) {
+              player_1.equipItem(currentItem, false, false);
+            }
+          });
+        }
+
+        if (ctx.value.equipment && ctx.value.isActive) {
           var equipItems = Object.keys(ctx.value.equipment);
           equipItems.forEach(function (item) {
-            var currentItem = ctx.sp.Game.getFormEx(ctx.value.equipment[item]);
+            var currentItem = ctx.sp.Game.getForm(ctx.value.equipment[item]);
+            ctx.sp.printConsole(currentItem.getName());
 
             if (!player_1.isEquipped(currentItem)) {
               player_1.equipItem(currentItem, false, false);
@@ -1282,12 +1454,54 @@ exports.init = void 0;
 var utility_1 = require("../utility");
 
 function sendMessage() {
+  var _a, _b;
+
   try {
     if (ctx.value !== ctx.state.message) {
       ctx.state.message = ctx.value;
+      ctx.sp.printConsole("sendMessage", ctx.value);
+      ctx.sp.printConsole("sendMessage", ctx.state.message);
 
       if (ctx.value) {
-        ctx.sp.Debug.notification(ctx.value);
+        var myMessage = ctx.value;
+
+        if (myMessage) {
+          if (myMessage.type === "add") {
+            var message_1 = "Добавлен новый предмет.";
+
+            if (myMessage.baseId) {
+              var itemName = ctx.sp.Game.getForm(myMessage.baseId).getName();
+              message_1 = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u043D\u043E\u0432\u044B\u0439 \u043F\u0440\u0435\u0434\u043C\u0435\u0442: " + itemName + ".";
+
+              if (myMessage.count && myMessage.count > 0) {
+                message_1 = "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u043D\u043E\u0432\u044B\u0439 \u043F\u0440\u0435\u0434\u043C\u0435\u0442: " + itemName + " +" + myMessage.count + ".";
+              }
+            }
+
+            ctx.sp.Debug.notification(message_1);
+          }
+
+          if (myMessage.type === "delete") {
+            var message_2 = "Предмет удален.";
+
+            if (myMessage.baseId) {
+              var itemName = ctx.sp.Game.getForm(myMessage.baseId).getName();
+              message_2 = "\u041F\u0440\u0435\u0434\u043C\u0435\u0442 \u0443\u0434\u0430\u043B\u0435\u043D: " + itemName + ".";
+
+              if (myMessage.count && myMessage.count > 0) {
+                message_2 = "\u041F\u0440\u0435\u0434\u043C\u0435\u0442 \u0443\u0434\u0430\u043B\u0435\u043D: " + itemName + " -" + myMessage.count + ".";
+              }
+            }
+
+            ctx.sp.Debug.notification((_a = myMessage.message) !== null && _a !== void 0 ? _a : "OK!");
+          }
+
+          if (myMessage.type === "message") {
+            ctx.sp.Debug.notification((_b = myMessage.message) !== null && _b !== void 0 ? _b : "OK!");
+          }
+        } else {
+          ctx.sp.Debug.notification(ctx.value);
+        }
       }
     }
   } catch (e) {
@@ -1841,9 +2055,6 @@ var init = function () {
       }
     });
   }));
-  utility_1.utils.hook("_onActivate", function (pcFormId, eventData) {
-    utility_1.utils.log("_onActivate", pcFormId, eventData);
-  });
 };
 
 exports.init = init;
@@ -1863,17 +2074,36 @@ var init = function () {
       try {
         if (e.source && ctx.sp.Spell.from(e.source)) return;
         var target = ctx.getFormIdInServerFormat(e.target.getFormId());
+        var data = e.target;
+        var objectName = data.getBaseObject().getName();
+
+        var sendAnimation_1 = function (name) {
+          ctx.sp.Debug.sendAnimationEvent(ctx.sp.Game.getPlayer(), name);
+        };
+
+        if (objectName === "Железорудная жила" && !ctx.state.startAnimation) {
+          ctx.state.startAnimation = true;
+          ctx.sp.printConsole(ctx.state.startAnimation);
+          sendAnimation_1("idleplayer");
+          sendAnimation_1("idlepickaxetableenter");
+          ctx.sp.Utility.wait(5).then(function () {
+            sendAnimation_1("idlepickaxeexit");
+            sendAnimation_1("idlepickaxetableexit");
+            sendAnimation_1("idlechairexitstart");
+            ctx.state.startAnimation = false;
+            ctx.sp.printConsole(ctx.state.startAnimation);
+          });
+        }
+
         ctx.sendEvent({
-          target: target
+          target: target,
+          mineralSource: objectName
         });
       } catch (e) {
         ctx.sp.printConsole("Catch _onFarm", e);
       }
     });
   }));
-  utility_1.utils.hook("_onFarm", function (pcFormId, eventData) {
-    utility_1.utils.log(pcFormId);
-  });
 };
 
 exports.init = init;

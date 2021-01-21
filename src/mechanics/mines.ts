@@ -1,34 +1,41 @@
 import { utils } from "../utility";
 import { MP } from "../platform";
-import { CellChangeEvent, ActivateEvent } from "../types/Events";
+import { CellChangeEvent, ActivateEvent, message } from "../types/Events";
 import { mines } from "./dataMechanics/locations/mines";
 import { PROFFESSIONS } from "./dataMechanics/professions";
 import type { proffession, collectorNames } from "./dataMechanics/professions";
 import { inventory, inventoryEquip } from "../types/Inventory";
+import { minerals } from "./dataMechanics/items/minerals";
 // import { addItem } from "../helper";
 declare const mp: MP;
 
+const getMessage = ({ message, type, baseId }: message): message => {
+  return { message, type, baseId };
+};
+
 const isMine = (name: string): boolean => {
-  const findedMine = mines.find((el) => el.ruName === name);
+  const findedMine = mines.find((el) => el.worldId === name);
   return findedMine ? true : false;
 };
 
-const addItem = (formId: number, baseId: number, count: number) => {
+const addItem = (formId: number, baseId: number, count: number): void => {
   if (count <= 0) return;
-
-  const inv = mp.get(formId, "inventory");
-  let added = false;
-  for (const value of inv) {
-    if (Object.keys(value).length == 2 && value.baseId == baseId) {
-      value.count += count;
-      added = true;
-      break;
-    }
+  const inv: inventory = mp.get(formId, "inventory");
+  let newInv: inventory = inv;
+  const item = inv.entries.find((item) => item.baseId === baseId);
+  if (item) {
+    const itemIndex = inv.entries.findIndex((item) => item.baseId === baseId);
+    newInv.entries[itemIndex].count += count;
+    mp.set(formId, "inventory", newInv);
+    // mp.set(formId, "message", getMessage({ type: "add", baseId, count }));
+  } else {
+    newInv.entries.push({
+      baseId: baseId,
+      count: count,
+    });
+    mp.set(formId, "inventory", newInv);
+    // mp.set(formId, "message", getMessage({ type: "add", baseId, count }));
   }
-  if (!added) {
-    inv.entries.push({ baseId, count });
-  }
-  mp.set(formId, "inventory", inv);
 };
 
 const deleteItem = (
@@ -100,7 +107,7 @@ const isEquip = (pcFormId: number, itemId: number): boolean => {
   return item?.worn ?? false;
 };
 
-const allEquipItems = (pcFormId: number): inventoryEquip => {
+const getAllEquipItems = (pcFormId: number): inventoryEquip => {
   const myInv: inventoryEquip = mp.get(pcFormId, "equipment");
   const myEquip: inventoryEquip = {
     inv: { entries: myInv.inv.entries.filter((item) => item.worn) },
@@ -166,13 +173,27 @@ const deleteProfessionItems = (
       const isDeleted = deleteItem(pcFormId, currentProf.gloves, 1);
       if (!isDeleted.success) utils.log(isDeleted.message);
     }
-    mp.set(pcFormId, "message", "Ты уволен! Экипировка возвращена.");
+    mp.set(
+      pcFormId,
+      "message",
+      getMessage({
+        type: "message",
+        message: "Ты уволен! Экипировка возвращена.",
+      })
+    );
 
     return true;
   } else {
     const messageError =
       "Ошибка: игрок не может уволиться, не все предметы могут быть возвращены!";
-    mp.set(pcFormId, "message", messageError);
+    mp.set(
+      pcFormId,
+      "message",
+      getMessage({
+        type: "message",
+        message: messageError,
+      })
+    );
     utils.log(messageError);
     return false;
   }
@@ -191,43 +212,104 @@ const addProfessionItems = (pcFormId: number, name: collectorNames): void => {
   if (currentProf.gloves) addItem(pcFormId, currentProf.gloves, 1);
 };
 
-const currentProfessionName = "miner";
+const setProfession = (pcFormId: number, professionName: collectorNames) => {
+  const currentProfession = PROFFESSIONS[currentProfessionName];
+  addProfessionItems(pcFormId, currentProfessionName);
+  mp.set(pcFormId, "activeProfession", {
+    name: professionName,
+    equipment: currentProfession,
+    oldEquipment: getAllEquipItems(pcFormId).inv.entries,
+    isActive: true,
+  });
+};
+const deleteProfession = (pcFormId: number) => {
+  const isDeleted = deleteProfessionItems(pcFormId, currentProfessionName);
+  if (!isDeleted) {
+    utils.log("Error: deleteProfessionItems() - error in deleteItem() ");
+  } else {
+    const { oldEquipment } = mp.get(pcFormId, "activeProfession");
+    utils.log(oldEquipment);
+    mp.set(pcFormId, "activeProfession", {
+      name: null,
+      equipment: null,
+      oldEquipment: oldEquipment,
+      isActive: false,
+    });
+  }
+};
+const sellItems = (
+  pcFormId: number,
+  items: { name: string; price: number }[]
+): void => {
+  const inv: inventory = mp.get(pcFormId, "inventory");
+  items.forEach((item) => {
+    const itemId = minerals.find((mineral) => mineral.name === item.name)?.id;
 
-export const init = () => {
-  utils.hook("_onActivate", (pcFormId: number, event: ActivateEvent) => {
-    try {
-      if (event.target === 403464) {
-        const activeProfession = mp.get(pcFormId, "activeProfession");
-        const currentProfession = PROFFESSIONS[currentProfessionName];
-        //Проверка сосдали ли мы профессию шахтер
-        if (currentProfession) {
-          utils.log(allEquipItems(pcFormId).inv);
-          // if (!activeProfession) {
-          //   mp.set(pcFormId, "activeProfession", {
-          //     name: currentProfessionName,
-          //     equipment: currentProfession,
-          //   });
-
-          //   addProfessionItems(pcFormId, currentProfessionName);
-          // } else {
-          //   if (activeProfession.name === currentProfessionName) {
-          // const isDeleted = deleteProfessionItems(
-          //       pcFormId,
-          //       currentProfessionName
-          //     );
-          //     if (!isDeleted) {
-          //       utils.log(
-          //         "Error: deleteProfessionItems() - error in deleteItem() "
-          //       );
-          //     } else {
-          //       mp.set(pcFormId, "activeProfession", null);
-          //     }
-          //   }
-          // }
-        }
+    if (itemId !== undefined) {
+      const itemCount: number | undefined = inv.entries.find(
+        (itemFind) => itemFind.baseId === parseInt(itemId, 16)
+      )?.count;
+      if (itemCount && itemCount > 0) {
+        deleteItem(pcFormId, parseInt(itemId, 16), itemCount);
+        mp.set(
+          pcFormId,
+          "message",
+          getMessage({
+            type: "message",
+            message: `Удалено ${item.name}: ${itemCount}, получено золото ${
+              itemCount * item.price
+            }.`,
+          })
+        );
+        addItem(pcFormId, 15, itemCount * item.price);
       }
-    } catch (err) {
-      utils.log(err);
     }
   });
+};
+const currentProfessionName = "miner";
+const sell: boolean = true;
+export const init = () => {
+  utils.hook(
+    "_onCurrentCellChange",
+    (pcFormId: number, event: ActivateEvent) => {
+      try {
+        if (isMine(mp.get(pcFormId, "worldOrCellDesc"))) {
+          const myProfession: {
+            isActive: boolean;
+            name: collectorNames;
+            equipment: proffession;
+            oldEquipment: [];
+          } = mp.get(pcFormId, "activeProfession");
+
+          if (myProfession === null) {
+            setProfession(pcFormId, currentProfessionName);
+          } else {
+            if (!myProfession.isActive) {
+              setProfession(pcFormId, currentProfessionName);
+            }
+          }
+        } else {
+          const myProfession: {
+            isActive: boolean;
+            name: collectorNames;
+            equipment: proffession;
+            oldEquipment: [];
+          } = mp.get(pcFormId, "activeProfession");
+          if (myProfession.name === currentProfessionName) {
+            if (myProfession.isActive) {
+              deleteProfession(pcFormId);
+              if (sell) {
+                setTimeout(() => {
+                  sellItems(pcFormId, [{ name: "Железная руда", price: 10 }]);
+                }, 2000);
+                utils.log("Sell");
+              }
+            }
+          }
+        }
+      } catch (err) {
+        utils.log(err);
+      }
+    }
+  );
 };
